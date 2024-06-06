@@ -97,7 +97,7 @@ async def run_profiling(time_in_seconds: int, db):
                 "type": "header",
                 "text": {
                     "type": "plain_text",
-                    "text": f"Profiling completed. Duration: {time_in_seconds} seconds\nFrom {start_time} - {end_time} ",
+                    "text": f"❄️Profiling completed. Duration: {time_in_seconds} seconds\nFrom {start_time} - {end_time}❄️",
                     "emoji": True
                 }
             }

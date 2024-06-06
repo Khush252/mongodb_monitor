@@ -5,7 +5,7 @@ import config
 
 from utils.serialize_csv import serialize_for_csv
 from src.alerts import send_slack_alert
-from config import SeverityLevel
+from config import SeverityLevel,SEVERITY_EMOJIS
 
 #Queries slower than config.SLOWMS
 def get_slow_queries(db, start_time, end_time):
@@ -32,12 +32,7 @@ def write_to_csv(queries, columns, file_name):
             writer.writerow(row)
 
 
-SEVERITY_EMOJIS = {
-    SeverityLevel.CRITICAL: "🚨",
-    SeverityLevel.HIGH: "🔴",
-    SeverityLevel.MEDIUM: "🟡",
-    SeverityLevel.LOW: "🔵"
-}
+
 
 def check_thresholds(query, thresholds):
     thresholds_exceeded = []
@@ -79,7 +74,7 @@ def update_severity(value, threshold, current_severity):
 def build_alert_blocks(query, thresholds_exceeded, highest_severity):
     command_description = query.get('command', {}).get('find', 'None')
     command_filter = query.get('command', {}).get('filter', 'None')
-    light_emoji = SEVERITY_EMOJIS[highest_severity]
+    light_emoji = config.SEVERITY_EMOJIS[highest_severity]
 
     alert_blocks = [
         build_header_block(f"{light_emoji} MongoDB Query Profiler Alert {light_emoji}"),

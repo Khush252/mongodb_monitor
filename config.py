@@ -7,7 +7,13 @@ class SeverityLevel(Enum):
     MEDIUM = 2
     HIGH = 3
     CRITICAL = 4
-
+    
+SEVERITY_EMOJIS = {
+    SeverityLevel.CRITICAL: "🚨",
+    SeverityLevel.HIGH: "🔴",
+    SeverityLevel.MEDIUM: "🟡",
+    SeverityLevel.LOW: "🔵"
+}
 
 load_dotenv()
 
