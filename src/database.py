@@ -1,19 +1,18 @@
 from pymongo import MongoClient
 import config
 
+class MongoDBProfiler:
+    def __init__(self):
+        self.client = MongoClient(config.MONGODB_CONNECTION_STRING)
+        self.db = self.client[config.DATABASE_NAME]
 
-#getting database - function 
-def get_database():
-    client=MongoClient(config.MONGODB_CONNECTION_STRING)
-    return client[config.DATABASE_NAME]
+    def enable_profiling(self):
+        self.db.command("profile", 1, slowms=config.SLOWMS)
+        print(f"Profiling enabled with slowms set to {config.SLOWMS} ms")
 
-def enable_profiling(db):
-    db.command("profile",1,slowms=config.SLOWMS)
+    def disable_profiling(self):
+        self.db.command("profile", 0)
+        print("Profiling disabled")
 
-def disable_profiling(db):
-    db.command("profile",0)
-
-    
-
-
-
+    def get_database(self):
+        return self.db
