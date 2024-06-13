@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 import config
 
+
 #getting database - function 
 def get_database():
     client=MongoClient(config.MONGODB_CONNECTION_STRING)
