@@ -18,12 +18,22 @@ class MongoDBProfiler:
         self._initialized = True
 
     def enable_profiling(self):
-        self.db.command("profile", 1, slowms=config.SLOWMS)
-        print(f"Profiling enabled with slowms set to {config.SLOWMS} ms")
+        try:
+            self.db.command("profile", 1, slowms=config.SLOWMS)
+            print(f"Profiling enabled with slowms set to {config.SLOWMS} ms")
+        except Exception as e:
+               print("Error in enabling Profiler")
+
 
     def disable_profiling(self):
-        self.db.command("profile", 0)
-        print("Profiling disabled")
+        try:
+            self.db.command("profile", 0)
+            print("Profiling disabled")
+        except Exception as e:
+            print("Error is disabling profiler")
 
     def get_database(self):
-        return self.db
+        try:
+            return self.db
+        except Exception as e:
+            print("Error in getting database")
