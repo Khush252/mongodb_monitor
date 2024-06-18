@@ -2,10 +2,11 @@ from datetime import datetime, timedelta
 import json
 import csv
 import config
+import os
 
 from utils.serialize_csv import serialize_for_csv
 from src.alerts import send_slack_alert
-from config import SeverityLevel,SEVERITY_EMOJIS
+from config import SeverityLevel,SEVERITY_EMOJIS,GENERAL_COLUMNS,UPDATE_COLUMNS
 
 #Queries slower than config.SLOWMS
 def get_slow_queries(db, start_time, end_time):
@@ -15,10 +16,16 @@ def get_slow_queries(db, start_time, end_time):
     })
 
 
+
 def write_to_csv(queries, columns, file_name):
-    with open(file_name, mode='w', newline='') as file:
+    file_exists = os.path.isfile(file_name)
+    
+    with open(file_name, mode='a', newline='') as file:  # Open in append mode
         writer = csv.DictWriter(file, fieldnames=columns)
-        writer.writeheader()
+        
+        if not file_exists:
+            writer.writeheader()  # Write header only if file doesn't already exist
+        
         for query in queries:
             row = {}
             for column in columns:
@@ -30,6 +37,7 @@ def write_to_csv(queries, columns, file_name):
                         break
                 row[column] = json.dumps(serialize_for_csv(value)) if isinstance(value, (dict, list)) else value
             writer.writerow(row)
+
 
 
 
@@ -154,12 +162,10 @@ def check_thresholds_and_alert(query):
         ]
         send_slack_alert(error_blocks, is_block=True)
 
-
-#profiling queries
-def profile_queries(db):
+def profile_queries(db, general_csv_file, update_csv_file):
     end_time = datetime.utcnow()
-    start_time = end_time - timedelta(minutes=config.PROFILING_TIME / 60.0)
-
+    start_time = end_time - timedelta(minutes= 5.0/ 60.0)
+    print(f"{start_time}        {end_time}")
     print(f"Profiling from {start_time} to {end_time}...")
 
     slow_queries = get_slow_queries(db, start_time, end_time)
@@ -167,9 +173,9 @@ def profile_queries(db):
     general_queries = []
     update_queries = []
 
-#slow queries are those which take time more than slowms 
+    # Slow queries are those which take time more than slowms 
     for query in slow_queries:
-        #checking threshold for slow queries and sending alerts 
+        # Checking threshold for slow queries and sending alerts 
         check_thresholds_and_alert(query)
         if query.get("op") == "update":
             update_queries.append(query)
@@ -177,15 +183,15 @@ def profile_queries(db):
             general_queries.append(query)
 
     print(f"Found {len(general_queries)} general queries and {len(update_queries)} update queries.")
-#writing to CSV files
+    # Writing to CSV files
     if general_queries:
-        write_to_csv(general_queries, config.GENERAL_COLUMNS, config.GENERAL_CSV_FILE)
-        print(f"General queries written to {config.GENERAL_CSV_FILE}")
+        write_to_csv(general_queries, GENERAL_COLUMNS, general_csv_file)
+        print(f"General queries written to {general_csv_file}")
     else:
         print("No general queries found.")
 
     if update_queries:
-        write_to_csv(update_queries, config.UPDATE_COLUMNS, config.UPDATE_CSV_FILE)
-        print(f"Update queries written to {config.UPDATE_CSV_FILE}")
+        write_to_csv(update_queries, UPDATE_COLUMNS, update_csv_file)
+        print(f"Update queries written to {update_csv_file}")
     else:
         print("No update queries found.")

@@ -1,14 +1,16 @@
 
-from src.database import get_database, enable_profiling, disable_profiling
+from src.database import MongoDBProfiler
 from src.profiling import profile_queries
 from src.queries import perform_queries
 
 
 def main():
-    db = get_database()
+    profiler = MongoDBProfiler()
+
+    db = profiler.get_database()
 
     # Enable profiling
-    enable_profiling(db)
+    profiler.enable_profiling()
     print("Profiling enabled.")
 
     # Perform queries
@@ -29,7 +31,7 @@ def main():
     profile_queries(db)
 
     # Disable profiling
-    disable_profiling(db)
+    profiler.disable_profiling()
     print("Profiling disabled.")
 
 if __name__ == "__main__":
