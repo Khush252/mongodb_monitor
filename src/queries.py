@@ -26,23 +26,23 @@ def perform_queries():
             {"$sort": {"average_rating": -1}},
             {"$limit": 10}
         ]),
-        ("Text search query", {"$text": {"$search": "love"}}),
+        # ("Text search query", {"$text": {"$search": "love"}}),
         ("Complex query with sorting", {"genres": random.choice(genres)}, [("title", 1)]),
-        ("Regex query", {"title": {"$regex": ".*love.*"}}),
+        # ("Regex query", {"title": {"$regex": ".*love.*"}}),
         ("Simple query (year)", {"year": random.randint(1914, 2014)}),
         ("Complex query (year and genres)", {"year": {"$lt": random.randint(1914, 2014)}, "genres": {"$in": [random.choice(genres)]}}),
         ("Aggregation query (average rating by year)", [
             {"$group": {"_id": "$year", "average_rating": {"$avg": "$imdb.rating"}}},
             {"$sort": {"_id": 1, "runtime": 1}}
         ]),
-        ("Text search query (plot contains 'love')", {"$text": {"$search": "love"}}),
+        # ("Text search query (plot contains 'love')", {"$text": {"$search": "love"}}),
         ("Complex query (multiple criteria and sorting)", {
             "year": {"$gte": random.randint(1914, 2014)},
             "genres": random.choice(genres),
             "imdb.rating": {"$gte": random.uniform(1.6, 9.6)},
             "imdb.votes": {"$gt": random.randint(5, 1521105)}
         }, [("imdb.rating", -1)]),
-        ("Regex query (titles starting with 'H')", {"title": {"$regex": "^H"}}),
+        # ("Regex query (titles starting with 'H')", {"title": {"$regex": "^H"}}),
         ("Create operation (insert new movie)", {
             "title": "New Movie2",
             "year": random.randint(1914, 2014),
