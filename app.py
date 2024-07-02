@@ -28,7 +28,7 @@ app = FastAPI()
 # API call for profiling
 # Post request which includes time (in seconds) and profiling (True or False) information
 @app.get("/")
-def status():
+async def status():
     return JSONResponse(content={"message": "OK"}, status_code=200)
 
 
