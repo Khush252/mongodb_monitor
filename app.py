@@ -157,12 +157,38 @@ async def run_profiling(time_in_seconds: int, general_csv_file: str, update_csv_
         send_slack_alert(error_message, is_block=True)
     finally:
         # Ensure the profiler is disabled
+        profiling_end_message = [
+            {
+                "type": "header",
+                "text": {
+                    "type": "plain_text",
+                    "text": f"❄️Profiling Disabled❄️",
+                    "emoji": True
+                }
+            }
+        ]
+        
+        # Send acknowledgment message
+        send_slack_alert(profiling_end_message, is_block=True)
         print("Profiling disabled (finally)")
         profiler.disable_profiling()
 
 def handle_signal(sig, frame):
     global profiler
     profiler.disable_profiling()
+    profiling_end_message = [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": f"❄️Profiling Disabled❄️",
+                "emoji": True
+            }
+        }
+    ]
+    
+    # Send acknowledgment message
+    send_slack_alert(profiling_end_message, is_block=True)
     print("Profiling disabled")
     sys.exit(0)
 

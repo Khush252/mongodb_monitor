@@ -1,0 +1,2 @@
+op,ns,command,nbatches,cursorExhausted,numYield,keysExamined,responseLength,planSummary,docsExamined,nReturned,planningTimeMicros,execStats.Stage,execStats.executionTimeMillisEstimate,execStats.works,execStats.inputStage.indexName,execStats.inputStage.indexBounds,execStats.inputStage.seek
+insert,test.movies,"{""insert"": ""movies"", ""ordered"": true, ""lsid"": {""id"": ""0fba27c3f8884cdf8247feed578e24dd""}, ""$db"": ""test""}",{},{},0,{},45,{},{},{},{},{},{},{},{},{},{}
