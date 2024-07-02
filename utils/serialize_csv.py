@@ -13,4 +13,4 @@ def serialize_for_csv(data):
     elif isinstance(data, list):
         return [serialize_for_csv(item) for item in data]
     else:
-        return data
+        return str(data)
