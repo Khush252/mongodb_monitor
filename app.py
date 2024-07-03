@@ -8,6 +8,7 @@ import uvicorn
 import asyncio
 
 from fastapi import FastAPI, BackgroundTasks
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from src.alerts import send_slack_alert
 
@@ -100,20 +101,22 @@ def start_profiling(time_in_seconds: int, background_tasks: BackgroundTasks):
 async def run_profiling(time_in_seconds: int, general_csv_file: str, update_csv_file: str):
     global profiler
     db = profiler.get_database()
+    profiling_disabled_sent = False  # Flag to track if the profiling disabled message has been sent
+
     try:
         start_time = datetime.utcnow()
         end_time = start_time + timedelta(seconds=time_in_seconds)
 
         # Performing queries
         # perform_queries()
-        
+
         while True:
             current_time = datetime.utcnow()
             if current_time + timedelta(seconds=5) >= end_time:
                 break
             profile_queries(db, general_csv_file, update_csv_file)
             await asyncio.sleep(5)  # Wait for 5 seconds before the next profiling
-            
+
         # Call profile_queries one last time
         profile_queries(db, general_csv_file, update_csv_file)
 
@@ -131,7 +134,6 @@ async def run_profiling(time_in_seconds: int, general_csv_file: str, update_csv_
         send_slack_alert(completion_message, is_block=True)
     except asyncio.CancelledError:
         # Handle task cancellation (e.g., due to a signal)
-        profiler.disable_profiling()
         cancel_message = [
             {
                 "type": "section",
@@ -144,7 +146,7 @@ async def run_profiling(time_in_seconds: int, general_csv_file: str, update_csv_
         send_slack_alert(cancel_message, is_block=True)
         print("Profiling stopped because CTRL+C was pressed")
     except Exception as e:
-        print("Exception caught")
+        print(f"Exception caught: {e}")
         error_message = [
             {
                 "type": "section",
@@ -156,22 +158,24 @@ async def run_profiling(time_in_seconds: int, general_csv_file: str, update_csv_
         ]
         send_slack_alert(error_message, is_block=True)
     finally:
-        # Ensure the profiler is disabled
-        profiling_end_message = [
-            {
-                "type": "header",
-                "text": {
-                    "type": "plain_text",
-                    "text": f"❄️Profiling Disabled❄️",
-                    "emoji": True
+        if not profiling_disabled_sent:
+            # Ensure the profiler is disabled
+            profiler.disable_profiling()
+            profiling_end_message = [
+                {
+                    "type": "header",
+                    "text": {
+                        "type": "plain_text",
+                        "text": f"❄️Profiling Disabled❄️",
+                        "emoji": True
+                    }
                 }
-            }
-        ]
-        
-        # Send acknowledgment message
-        send_slack_alert(profiling_end_message, is_block=True)
-        print("Profiling disabled (finally)")
-        profiler.disable_profiling()
+            ]
+
+            # Send acknowledgment message
+            send_slack_alert(profiling_end_message, is_block=True)
+            print("Profiling disabled (finally)")
+            profiling_disabled_sent = True  # Set the flag to True
 
 def handle_signal(sig, frame):
     global profiler
