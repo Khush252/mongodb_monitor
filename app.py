@@ -13,7 +13,7 @@ from src.alerts import send_slack_alert
 
 from src.database import MongoDBProfiler
 from src.profiling import profile_queries
-from src.queries import perform_queries
+# from src.queries import perform_queries
 
 # Global variable to store the MongoDBProfiler instance
 profiler = MongoDBProfiler()
