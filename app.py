@@ -105,7 +105,7 @@ async def run_profiling(time_in_seconds: int, general_csv_file: str, update_csv_
         end_time = start_time + timedelta(seconds=time_in_seconds)
 
         # Performing queries
-        perform_queries()
+        # perform_queries()
         
         while True:
             current_time = datetime.utcnow()
